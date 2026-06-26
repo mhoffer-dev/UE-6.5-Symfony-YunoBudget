@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New MoyenPaiement{% endblock %}
+
+{% block body %}
+    <h1>Create new MoyenPaiement</h1>
+
+    {{ include('moyen_paiement/_form.html.twig') }}
+
+    <a href="{{ path('app_moyen_paiement_index') }}">back to list</a>
+{% endblock %}

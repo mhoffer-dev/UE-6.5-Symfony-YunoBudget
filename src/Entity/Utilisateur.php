@@ -123,4 +123,31 @@ class Utilisateur
         }
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return $this->prenom . ' ' . $this->nom;
+    }
+
+    public function addCategory(Categorie $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->setUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Categorie $category): static
+    {
+        if ($this->categories->removeElement($category)) {
+            // set the owning side to null (unless already changed)
+            if ($category->getUtilisateur() === $this) {
+                $category->setUtilisateur(null);
+            }
+        }
+
+        return $this;
+    }
 }

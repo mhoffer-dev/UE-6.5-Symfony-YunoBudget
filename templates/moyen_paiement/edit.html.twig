@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit MoyenPaiement{% endblock %}
+
+{% block body %}
+    <h1>Edit MoyenPaiement</h1>
+
+    {{ include('moyen_paiement/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_moyen_paiement_index') }}">back to list</a>
+
+    {{ include('moyen_paiement/_delete_form.html.twig') }}
+{% endblock %}

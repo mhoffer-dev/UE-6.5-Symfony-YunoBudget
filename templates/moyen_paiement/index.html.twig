@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}MoyenPaiement index{% endblock %}
+
+{% block body %}
+    <h1>MoyenPaiement index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom</th>
+                <th>NumeroMasque</th>
+                <th>Type</th>
+                <th>LibelleBanque</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for moyen_paiement in moyen_paiements %}
+            <tr>
+                <td>{{ moyen_paiement.id }}</td>
+                <td>{{ moyen_paiement.nom }}</td>
+                <td>{{ moyen_paiement.numeroMasque }}</td>
+                <td>{{ moyen_paiement.type.value }}</td>
+                <td>{{ moyen_paiement.libelleBanque }}</td>
+                <td>
+                    <a href="{{ path('app_moyen_paiement_show', {'id': moyen_paiement.id}) }}">show</a>
+                    <a href="{{ path('app_moyen_paiement_edit', {'id': moyen_paiement.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_moyen_paiement_new') }}">Create new</a>
+{% endblock %}
