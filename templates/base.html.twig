@@ -2,24 +2,75 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        <title>{% block title %}YunoBudget{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2290%22>💰</text></svg>">
         
-        {% block stylesheets %}
-        {% endblock %}
-
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-
-        {% set frankenphpHotReload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
-        {% if frankenphpHotReload %}
-            <meta name="frankenphp-hot-reload:url" content="{{ frankenphpHotReload }}">
-            <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
-            <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
-        {% endif %}
+        {# CDN Tailwind #}
+        <script src="https://cdn.tailwindcss.com"></script>
+        
+        <style>
+            /* Donne du style à tous les blocs de champs (label + input) */
+            form > div {
+                margin-bottom: 1.25rem;
+            }
+            /* Style des labels */
+            label {
+                display: block;
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #374151; /* gray-700 */
+                margin-bottom: 0.5rem;
+            }
+            /* Style des inputs texte, nombre, date et listes déroulantes */
+            input[type="text"], input[type="number"], input[type="datetime-local"], select {
+                width: 100%;
+                border-radius: 0.375rem; /* rounded-md */
+                border: 1px solid #D1D5DB; /* gray-300 */
+                padding: 0.625rem 0.875rem;
+                background-color: #FFFFFF;
+                color: #1F2937; /* gray-800 */
+                font-size: 0.875rem;
+                transition: all 0.2s;
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            }
+            /* Effet d'activation au clic (Focus) */
+            input:focus, select:focus {
+                outline: none;
+                border-color: #4F46E5; /* indigo-600 */
+                ring-width: 2px;
+                box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+            }
+        </style>
     </head>
-    <body>
-        {% block body %}{% endblock %}
+    {# Le h-screen et flex-col forcent le footer en bas #}
+    <body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col justify-between">
+        
+        <div>
+            {# Barre de navigation #}
+            <nav class="bg-indigo-600 text-white shadow-md">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between h-16">
+                        <div class="flex items-center space-x-8">
+                            <span class="font-bold text-xl tracking-tight">💰 YunoBudget</span>
+                            <div class="flex space-x-4">
+                                <a href="{{ path('app_transaction_index') }}" class="hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium">Transactions</a>
+                                <a href="{{ path('app_categorie_index') }}" class="hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium">Catégories</a>
+                                <a href="{{ path('app_moyen_paiement_index') }}" class="hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium">Moyens de Paiement</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            {# Contenu principal #}
+            <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {% block body %}{% endblock %}
+            </main>
+        </div>
+
+        {# Footer qui reste TOUT en bas de l'écran #}
+        <footer class="bg-gray-800 text-gray-400 text-center py-5 text-sm w-full">
+            &copy; {{ "now"|date("Y") }} YunoBudget - Tous droits réservés.
+        </footer>
     </body>
 </html>

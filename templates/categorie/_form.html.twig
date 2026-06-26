@@ -1,4 +1,11 @@
 {{ form_start(form) }}
+    {# Affiche proprement tous tes champs de saisie #}
     {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+
+    {# FORCE Symfony à générer le jeton CSRF caché maintenant #}
+    {{ form_rest(form) }}
+
+    <button class="w-full mt-6 bg-indigo-600 text-white font-medium py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors shadow-md">
+        {{ button_label|default('Sauvegarder') }}
+    </button>
 {{ form_end(form) }}
