@@ -22,14 +22,11 @@ class Categorie
     #[ORM\Column(length: 20, enumType: TypeCategorie::class)]
     private ?TypeCategorie $type = null;
 
-    #[ORM\Column(length: 7)]
-    private ?string $couleur = null;
-
     #[ORM\ManyToOne(inversedBy: 'categories')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Utilisateur $utilisateur = null;
 
-    #[ORM\OneToMany(mappedBy: 'categorie', targetEntity: Transaction::class)]
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'categorie', cascade: ['remove'])]
     private Collection $transactions;
 
     public function __construct()
@@ -44,9 +41,6 @@ class Categorie
 
     public function getType(): ?TypeCategorie { return $this->type; }
     public function setType(TypeCategorie $type): static { $this->type = $type; return $this; }
-
-    public function getCouleur(): ?string { return $this->couleur; }
-    public function setCouleur(string $couleur): static { $this->couleur = $couleur; return $this; }
 
     public function getUtilisateur(): ?Utilisateur { return $this->utilisateur; }
     public function setUtilisateur(?Utilisateur $utilisateur): static { $this->utilisateur = $utilisateur; return $this; }

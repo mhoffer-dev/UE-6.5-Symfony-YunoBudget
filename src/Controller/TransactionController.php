@@ -30,6 +30,9 @@ final class TransactionController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // 🔥 L'INJECTION MAGIQUE : Associe l'utilisateur connecté à la transaction
+            $transaction->setUtilisateur($this->getUser());
+
             $entityManager->persist($transaction);
             $entityManager->flush();
 
@@ -57,6 +60,11 @@ final class TransactionController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // 🔥 SÉCURITÉ EDIT : On s'assure que la transaction garde ou récupère bien l'utilisateur connecté
+            if ($transaction->getUtilisateur() === null) {
+                $transaction->setUtilisateur($this->getUser());
+            }
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_transaction_index', [], Response::HTTP_SEE_OTHER);
@@ -71,7 +79,9 @@ final class TransactionController extends AbstractController
     #[Route('/{id}', name: 'app_transaction_delete', methods: ['POST'])]
     public function delete(Request $request, Transaction $transaction, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$transaction->getId(), $request->getPayload()->getString('_token'))) {
+        $token = $request->getPayload()->getString('_token');
+
+        if ($this->isCsrfTokenValid('delete'.$transaction->getId(), $token)) {
             $entityManager->remove($transaction);
             $entityManager->flush();
         }

@@ -8,20 +8,23 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use App\Enum\TypePaiement;
 
 class MoyenPaiementType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('nom')
-            ->add('numeroMasque')
-            ->add('type')
-            ->add('libelleBanque')
-            ->add('utilisateur', EntityType::class, [
-                'class' => Utilisateur::class,
-                'choice_label' => 'id',
+            $builder->add('nom', null, [
+                'attr' => ['placeholder' => 'Ex: Visa, PayPal, Espèces...']
             ])
+            ->add('numeroMasque')
+            ->add('type', EnumType::class, [
+                'class' => TypePaiement::class,
+                'required' => true, 
+            ])
+            ->add('libelleBanque')
+
         ;
     }
 

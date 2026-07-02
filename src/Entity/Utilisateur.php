@@ -3,150 +3,127 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
-class Utilisateur
+#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180, unique: true)]
+    #[ORM\Column(length: 180)]
     private ?string $email = null;
 
+    /**
+     * @var list<string> The user roles
+     */
     #[ORM\Column]
-    private ?string $motDePasse = null;
+    private array $roles = [];
 
-    #[ORM\Column(length: 100)]
-    private ?string $prenom = null;
-
-    #[ORM\Column(length: 100)]
-    private ?string $nom = null;
+    /**
+     * @var string The hashed password
+     */
+    #[ORM\Column]
+    private ?string $password = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $dateInscription = null;
+    private bool $isVerified = false;
 
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Transaction::class, orphanRemoval: true)]
-    private Collection $transactions;
-
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: MoyenPaiement::class, orphanRemoval: true)]
-    private Collection $moyenPaiements;
-
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Categorie::class, orphanRemoval: true)]
-    private Collection $categories;
-
-    public function __construct()
+    public function getId(): ?int
     {
-        $this->transactions = new ArrayCollection();
-        $this->moyenPaiements = new ArrayCollection();
-        $this->categories = new ArrayCollection();
-        $this->dateInscription = new \DateTimeImmutable();
+        return $this->id;
     }
 
-    public function getId(): ?int { return $this->id; }
-
-    public function getEmail(): ?string { return $this->email; }
-    public function setEmail(string $email): static { $this->email = $email; return $this; }
-
-    public function getMotDePasse(): ?string { return $this->motDePasse; }
-    public function setMotDePasse(string $motDePasse): static { $this->motDePasse = $motDePasse; return $this; }
-
-    public function getPrenom(): ?string { return $this->prenom; }
-    public function setPrenom(string $prenom): static { $this->prenom = $prenom; return $this; }
-
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
-
-    public function getDateInscription(): ?\DateTimeImmutable { return $this->dateInscription; }
-    public function setDateInscription(\DateTimeImmutable $dateInscription): static { $this->dateInscription = $dateInscription; return $this; }
-
-    /** @return Collection<int, Transaction> */
-    public function getTransactions(): Collection { return $this->transactions; }
-
-    public function addTransaction(Transaction $transaction): static
+    public function getEmail(): ?string
     {
-        if (!$this->transactions->contains($transaction)) {
-            $this->transactions->add($transaction);
-            $transaction->setUtilisateur($this);
-        }
-        return $this;
+        return $this->email;
     }
 
-    public function removeTransaction(Transaction $transaction): static
+    public function setEmail(string $email): static
     {
-        if ($this->transactions->removeElement($transaction) && $transaction->getUtilisateur() === $this) {
-            $transaction->setUtilisateur(null);
-        }
-        return $this;
-    }
-
-    /** @return Collection<int, MoyenPaiement> */
-    public function getMoyenPaiements(): Collection { return $this->moyenPaiements; }
-
-    public function addMoyenPaiement(MoyenPaiement $moyenPaiement): static
-    {
-        if (!$this->moyenPaiements->contains($moyenPaiement)) {
-            $this->moyenPaiements->add($moyenPaiement);
-            $moyenPaiement->setUtilisateur($this);
-        }
-        return $this;
-    }
-
-    public function removeMoyenPaiement(MoyenPaiement $moyenPaiement): static
-    {
-        if ($this->moyenPaiements->removeElement($moyenPaiement) && $moyenPaiement->getUtilisateur() === $this) {
-            $moyenPaiement->setUtilisateur(null);
-        }
-        return $this;
-    }
-
-    /** @return Collection<int, Categorie> */
-    public function getCategories(): Collection { return $this->categories; }
-
-    public function addCategorie(Categorie $categorie): static
-    {
-        if (!$this->categories->contains($categorie)) {
-            $this->categories->add($categorie);
-            $categorie->setUtilisateur($this);
-        }
-        return $this;
-    }
-
-    public function removeCategorie(Categorie $categorie): static
-    {
-        if ($this->categories->removeElement($categorie) && $categorie->getUtilisateur() === $this) {
-            $categorie->setUtilisateur(null);
-        }
-        return $this;
-    }
-
-    public function __toString(): string
-    {
-        return $this->prenom . ' ' . $this->nom;
-    }
-
-    public function addCategory(Categorie $category): static
-    {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
-            $category->setUtilisateur($this);
-        }
+        $this->email = $email;
 
         return $this;
     }
 
-    public function removeCategory(Categorie $category): static
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
     {
-        if ($this->categories->removeElement($category)) {
-            // set the owning side to null (unless already changed)
-            if ($category->getUtilisateur() === $this) {
-                $category->setUtilisateur(null);
-            }
-        }
+        return (string) $this->email;
+    }
+
+    public function getUsername(): string
+    {
+        return (string) $this->email;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
+     */
+    public function __serialize(): array
+    {
+        $data = (array) $this;
+        $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
+        
+        return $data;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
 
         return $this;
     }

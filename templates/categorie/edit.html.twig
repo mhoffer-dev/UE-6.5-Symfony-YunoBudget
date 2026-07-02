@@ -1,22 +1,32 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier la Catégorie - YunoBudget{% endblock %}
+{% block title %}Modifier la catégorie — YunoBudget{% endblock %}
 
 {% block body %}
-<div class="max-w-2xl mx-auto">
-    <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-3xl font-bold text-gray-900">✏️ Modifier la catégorie</h1>
-        <a href="{{ path('app_categorie_index') }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">
-            &larr; Retour à la liste
+<div class="max-w-md mx-auto px-4 text-white">
+    
+    <!-- En-tête chirurgical -->
+    <div class="flex items-center space-x-3 pt-2">
+        <a href="{{ path('app_categorie_index') }}" class="text-zinc-400 hover:text-white transition-colors text-base font-mono">
+            &larr;
         </a>
+        <h1 class="text-xs font-medium tracking-tight text-zinc-400">Modifier la catégorie</h1>
     </div>
 
-    <div class="bg-white shadow sm:rounded-lg p-6 border border-gray-100">
-        {{ include('categorie/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+    <!-- Section Titre Épuré -->
+    <div class="text-center py-6">
+        <h1 class="text-2xl font-semibold tracking-tight text-white">{{ categorie.nom }}</h1>
+        <p class="text-xs text-zinc-500 mt-1">Ajustez les détails de cette catégorie.</p>
+        <div class="w-10 h-[1px] bg-zinc-800 mx-auto mt-3"></div>
     </div>
 
-    <div class="mt-4 flex justify-end">
-        {{ include('categorie/_delete_form.html.twig') }}
+    <!-- Formulaire (Champs + Boutons enregistrer/supprimer) -->
+    <div class="text-sm">
+        {{ include('categorie/_form.html.twig', {
+            'button_label': 'Enregistrer les modifications',
+            'categorie': categorie
+        }) }}
     </div>
+    
 </div>
 {% endblock %}

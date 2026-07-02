@@ -21,17 +21,16 @@ class TransactionType extends AbstractType
                 'widget' => 'single_text'
             ])
             ->add('libelleTransaction')
-            ->add('utilisateur', EntityType::class, [
-                'class' => Utilisateur::class,
-                'choice_label' => 'id',
-            ])
             ->add('categorie', EntityType::class, [
                 'class' => Categorie::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nom', // <-- Indique à Symfony d'afficher la propriété "nom" (ou "libelle" selon ton entité)
+                'placeholder' => 'Choisir une catégorie...', // Un champ vide propre au départ
+                'required' => true,
             ])
             ->add('moyenPaiement', EntityType::class, [
                 'class' => MoyenPaiement::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nom', // <-- Remplace par la propriété de ton entité (ex: 'nom', 'libelle')
+                'placeholder' => 'Choisir un mode de règlement',
             ])
         ;
     }

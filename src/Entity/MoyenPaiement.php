@@ -46,7 +46,29 @@ class MoyenPaiement
     public function setNom(string $nom): static { $this->nom = $nom; return $this; }
 
     public function getNumeroMasque(): ?string { return $this->numeroMasque; }
-    public function setNumeroMasque(?string $numeroMasque): static { $this->numeroMasque = $numeroMasque; return $this; }
+    public function setNumeroMasque(?string $numeroMasque): static
+    {
+        if ($numeroMasque) {
+            // 1. On nettoie les espaces ou tirets éventuels (ex: "4571 1234..." -> "45711234...")
+            $cleanNumber = str_replace([' ', '-'], '', $numeroMasque);
+            
+            // 2. On récupère la longueur du numéro
+            $length = strlen($cleanNumber);
+
+            if ($length > 4) {
+                // On garde les 4 derniers chiffres et on met des '*' devant
+                $derniersChiffres = substr($cleanNumber, -4);
+                $this->numeroMasque = str_repeat('*', $length - 4) . $derniersChiffres;
+            } else {
+                // Si le numéro est très court (ex: un RIB partiel), on le laisse tel quel
+                $this->numeroMasque = $cleanNumber;
+            }
+        } else {
+            $this->numeroMasque = null;
+        }
+
+        return $this;
+    }
 
     public function getType(): ?TypePaiement { return $this->type; }
     public function setType(TypePaiement $type): static { $this->type = $type; return $this; }

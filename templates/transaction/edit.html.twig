@@ -1,22 +1,32 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier la Transaction - YunoBudget{% endblock %}
+{% block title %}Modifier la transaction — YunoBudget{% endblock %}
 
 {% block body %}
-<div class="max-w-2xl mx-auto">
-    <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-3xl font-bold text-gray-900">✏️ Modifier la transaction</h1>
-        <a href="{{ path('app_transaction_index') }}" class="text-sm font-medium text-gray-500 hover:text-gray-700">
-            &larr; Retour à la liste
+<div class="max-w-md mx-auto px-4 text-white">
+    
+    <!-- En-tête chirurgical -->
+    <div class="flex items-center space-x-3 pt-2">
+        <a href="{{ path('app_transaction_index') }}" class="text-zinc-400 hover:text-white transition-colors text-base font-mono">
+            &larr;
         </a>
+        <h1 class="text-xs font-medium tracking-tight text-zinc-400">Modifier la transaction</h1>
     </div>
 
-    <div class="bg-white shadow sm:rounded-lg p-6 border border-gray-100">
-        {{ include('transaction/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+    <!-- Section du Montant (Style image_cc159d.png compact) -->
+    <div class="text-center py-3">
+        <span class="text-[10px] uppercase tracking-widest font-semibold text-zinc-500 block">Montant</span>
+        <div class="flex justify-center items-baseline text-white">
+            <span class="text-4xl font-bold tracking-tight">{{ transaction.montant|number_format(1, '.', ' ') }}</span>
+            <span class="text-xl font-medium text-zinc-400 ml-1">€</span>
+        </div>
+        <div class="w-10 h-[1px] bg-zinc-800 mx-auto mt-1.5"></div>
     </div>
 
-    <div class="mt-4 flex justify-end">
-        {{ include('transaction/_delete_form.html.twig') }}
+    <!-- Formulaire (Champs + Boutons intégrés) -->
+    <div class="text-sm">
+        {{ include('transaction/_form.html.twig') }}
     </div>
+    
 </div>
 {% endblock %}

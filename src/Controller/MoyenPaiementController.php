@@ -26,10 +26,15 @@ final class MoyenPaiementController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $moyenPaiement = new MoyenPaiement();
-        $form = $this->createForm(MoyenPaiementType::class, $moyenPaiement);
+        $form = $this->createForm(MoyenPaiementType::class, $moyenPaiement, [
+            'csrf_token_id' => 'moyenpaiement_new',
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // 🔥 Injection automatique de l'utilisateur connecté
+            $moyenPaiement->setUtilisateur($this->getUser());
+
             $entityManager->persist($moyenPaiement);
             $entityManager->flush();
 
@@ -53,10 +58,17 @@ final class MoyenPaiementController extends AbstractController
     #[Route('/{id}/edit', name: 'app_moyen_paiement_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, MoyenPaiement $moyenPaiement, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(MoyenPaiementType::class, $moyenPaiement);
+        $form = $this->createForm(MoyenPaiementType::class, $moyenPaiement, [
+            'csrf_token_id' => 'moyenpaiement_edit_' . $moyenPaiement->getId(),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // 🔥 Sécurité : On s'assure que l'utilisateur reste bien défini
+            if ($moyenPaiement->getUtilisateur() === null) {
+                $moyenPaiement->setUtilisateur($this->getUser());
+            }
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_moyen_paiement_index', [], Response::HTTP_SEE_OTHER);
@@ -71,7 +83,10 @@ final class MoyenPaiementController extends AbstractController
     #[Route('/{id}', name: 'app_moyen_paiement_delete', methods: ['POST'])]
     public function delete(Request $request, MoyenPaiement $moyenPaiement, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$moyenPaiement->getId(), $request->getPayload()->getString('_token'))) {
+        // On récupère le token envoyé par notre input hidden personnalisé
+        $token = $request->getPayload()->getString('_token');
+
+        if ($this->isCsrfTokenValid('delete'.$moyenPaiement->getId(), $token)) {
             $entityManager->remove($moyenPaiement);
             $entityManager->flush();
         }

@@ -30,6 +30,9 @@ final class CategorieController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Force l'utilisateur connecté
+            $categorie->setUtilisateur($this->getUser());
+
             $entityManager->persist($categorie);
             $entityManager->flush();
 
@@ -42,14 +45,6 @@ final class CategorieController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_categorie_show', methods: ['GET'])]
-    public function show(Categorie $categorie): Response
-    {
-        return $this->render('categorie/show.html.twig', [
-            'categorie' => $categorie,
-        ]);
-    }
-
     #[Route('/{id}/edit', name: 'app_categorie_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Categorie $categorie, EntityManagerInterface $entityManager): Response
     {
@@ -57,6 +52,10 @@ final class CategorieController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($categorie->getUtilisateur() === null) {
+                $categorie->setUtilisateur($this->getUser());
+            }
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_categorie_index', [], Response::HTTP_SEE_OTHER);
@@ -71,7 +70,9 @@ final class CategorieController extends AbstractController
     #[Route('/{id}', name: 'app_categorie_delete', methods: ['POST'])]
     public function delete(Request $request, Categorie $categorie, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$categorie->getId(), $request->getPayload()->getString('_token'))) {
+        $token = $request->getPayload()->getString('_token');
+
+        if ($this->isCsrfTokenValid('delete'.$categorie->getId(), $token)) {
             $entityManager->remove($categorie);
             $entityManager->flush();
         }
