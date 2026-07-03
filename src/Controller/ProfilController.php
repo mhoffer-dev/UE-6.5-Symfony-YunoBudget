@@ -11,7 +11,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormError;
 
 #[Route('/profil')]
@@ -22,13 +21,16 @@ class ProfilController extends AbstractController
     {
         $user = $this->getUser();
         
-        // Formulaire de modification d'email en ligne
-        $form = $this->createFormBuilder($user)
-            ->add('email', EmailType::class, [
-                'label' => 'Adresse Email',
-                'attr' => ['class' => 'form-control']
-            ])
-            ->getForm();
+        // 🛡️ Le FormBuilder intègre CSRF par défaut, mais on peut le configurer explicitement
+        $form = $this->createFormBuilder($user, [
+            'csrf_protection' => true,
+            'csrf_field_name' => '_token',
+            'csrf_token_id'   => 'profile_infos_item',
+        ])
+        ->add('email', EmailType::class, [
+            'label' => 'Adresse Email',
+        ])
+        ->getForm();
 
         $form->handleRequest($request);
 
@@ -47,29 +49,32 @@ class ProfilController extends AbstractController
     public function changePassword(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
-        $form = $this->createFormBuilder()
-            ->add('oldPassword', PasswordType::class, [
-                'label' => 'Mot de passe actuel',
-                'attr' => ['class' => 'form-control']
-            ])
-            ->add('plainPassword', RepeatedType::class, [
-                'type' => PasswordType::class,
-                'invalid_message' => 'Les deux mots de passe doivent correspondre.',
-                'first_options'  => ['label' => 'Nouveau mot de passe', 'attr' => ['class' => 'form-control']],
-                'second_options' => ['label' => 'Répéter le nouveau mot de passe', 'attr' => ['class' => 'form-control']],
-            ])
-            ->getForm();
+        
+        // 🛡️ Sécurisation explicite du formulaire de mot de passe contre les failles CSRF
+        $form = $this->createFormBuilder(null, [
+            'csrf_protection' => true,
+            'csrf_field_name' => '_token',
+            'csrf_token_id'   => 'profile_password_item',
+        ])
+        ->add('oldPassword', PasswordType::class, [
+            'label' => 'Mot de passe actuel',
+        ])
+        ->add('plainPassword', RepeatedType::class, [
+            'type' => PasswordType::class,
+            'invalid_message' => 'Les deux mots de passe doivent correspondre.',
+            'first_options'  => ['label' => 'Nouveau mot de passe'],
+            'second_options' => ['label' => 'Répéter le nouveau mot de passe'],
+        ])
+        ->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             
-            // Vérification que l'ancien mot de passe saisi est le bon
             if (!$passwordHasher->isPasswordValid($user, $data['oldPassword'])) {
                 $form->get('oldPassword')->addError(new FormError('Le mot de passe actuel est incorrect.'));
             } else {
-                // Hachage et sauvegarde du nouveau mot de passe
                 $hashedPassword = $passwordHasher->hashPassword($user, $data['plainPassword']);
                 $user->setPassword($hashedPassword);
                 
