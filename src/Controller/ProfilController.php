@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Security\Http\Attribute\IsGranted; // pour éviter une faille de sécurité ou un crash (le fameux « Call to a member function... on null ») si jamais quelqu'un tentait de forcer l'URL, on ajoute l'attribut de sécurité au-dessus de la classe de contrôleur.
 
 #[Route('/profil')]
 class ProfilController extends AbstractController
