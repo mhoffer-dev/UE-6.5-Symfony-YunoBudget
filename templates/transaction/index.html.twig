@@ -46,8 +46,13 @@
                                 {{ transaction.categorie ? transaction.categorie.nom : 'Sans catégorie' }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-zinc-400">
-                            {{ transaction.moyenPaiement ? transaction.moyenPaiement.nom : '' }}
+                        <td>
+                            {# 🛡️ Protection absolue : on teste si l'objet existe ET si son ID est valide et supérieur à 0 #}
+                            {% if transaction.moyenPaiement and transaction.moyenPaiement.id is defined and transaction.moyenPaiement.id > 0 %}
+                                {{ transaction.moyenPaiement.nom }}
+                            {% else %}
+                                <span class="text-muted" style="font-style: italic;">Non spécifié</span>
+                            {% endif %}
                         </td>
                         <td class="px-6 py-4 text-right font-semibold {% if transaction.montant < 0 %}text-red-400{% else %}text-green-400{% endif %}">
                             {{ transaction.montant|number_format(2, ',', ' ') }} €

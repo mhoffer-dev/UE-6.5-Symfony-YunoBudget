@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bilan Annuel {{ annee }} - YunoBudget{% endblock %}
+
+{% block body %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="space-y-8">
+    <div>
+        <h1 class="text-2xl font-bold tracking-tight text-white">Bilan Annuel — {{ annee }}</h1>
+        <p class="text-zinc-400 text-sm">Analyse globale de vos flux financiers de l'année.</p>
+    </div>
+
+    {# --- CARTES DE SYNTHÈSE --- #}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="p-5 rounded-2xl border border-[#2D2D31]" style="background-color: #161618;">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Total Revenus</span>
+            <div class="text-2xl font-bold text-green-400 mt-1">{{ totalRevenus|number_format(2, ',', ' ') }} €</div>
+        </div>
+        <div class="p-5 rounded-2xl border border-[#2D2D31]" style="background-color: #161618;">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Total Dépenses</span>
+            <div class="text-2xl font-bold text-red-400 mt-1">{{ totalDepenses|number_format(2, ',', ' ') }} €</div>
+        </div>
+        <div class="p-5 rounded-2xl border border-[#2D2D31]" style="background-color: #161618;">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Net Épargné</span>
+            <div class="text-2xl font-bold mt-1 {{ (totalRevenus - totalDepenses) >= 0 ? 'text-white' : 'text-amber-500' }}">
+                {{ (totalRevenus - totalDepenses)|number_format(2, ',', ' ') }} €
+            </div>
+        </div>
+    </div>
+
+    {# --- GRAPHIQUES --- #}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 p-6 rounded-2xl border border-[#2D2D31] flex flex-col justify-between" style="background-color: #161618;">
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4">Flux Mensuels</h3>
+            <div class="w-full h-64">
+                <canvas id="chartEvolution"></canvas>
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl border border-[#2D2D31] flex flex-col justify-between" style="background-color: #161618;">
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4">Répartition des Dépenses</h3>
+            <div class="w-full h-64 flex items-center justify-center">
+                <canvas id="chartCategories"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# --- SCRIPTS CHARTS (Configurés Mode Sombre Obsidian) --- #}
+<script>
+    const moisLabels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
+
+    // 1. Configuration Chart Évolution (Barres)
+    new Chart(document.getElementById('chartEvolution'), {
+        type: 'bar',
+        data: {
+            labels: moisLabels,
+            datasets: [
+                {
+                    label: 'Revenus',
+                    data: {{ revenus|json_encode }},
+                    backgroundColor: '#4ade80', // green-400
+                    borderRadius: 6
+                },
+                {
+                    label: 'Dépenses',
+                    data: {{ depenses|json_encode }},
+                    backgroundColor: '#f87171', // red-400
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#8E8E93', font: { size: 10 } } },
+                y: { grid: { color: '#2D2D31' }, ticks: { color: '#8E8E93', font: { size: 10 } } }
+            }
+        }
+    });
+
+    // 2. Configuration Chart Catégories (Doughnut)
+    new Chart(document.getElementById('chartCategories'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ categoriesLabels|json_encode|raw }},
+            datasets: [{
+                data: {{ categoriesData|json_encode }},
+                backgroundColor: ['#60a5fa', '#c084fc', '#f43f5e', '#fbbf24', '#2dd4bf', '#a78bfa'],
+                borderWidth: 2,
+                borderColor: '#161618'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: { color: '#8E8E93', font: { size: 10 }, boxWidth: 12 }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

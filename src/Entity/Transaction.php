@@ -34,6 +34,8 @@ class Transaction
     #[ORM\JoinColumn(nullable: false)]
     private ?MoyenPaiement $moyenPaiement = null;
 
+    private ?utilisateur $user = null;
+
     public function getId(): ?int { return $this->id; }
 
     public function getMontant(): ?float { return $this->montant; }
@@ -53,4 +55,5 @@ class Transaction
 
     public function getMoyenPaiement(): ?MoyenPaiement { return $this->moyenPaiement; }
     public function setMoyenPaiement(?MoyenPaiement $moyenPaiement): static { $this->moyenPaiement = $moyenPaiement; return $this; }
+
 }

@@ -14,11 +14,28 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/transaction')]
 final class TransactionController extends AbstractController
 {
-    #[Route(name: 'app_transaction_index', methods: ['GET'])]
+    #[Route('/', name: 'app_transaction_index', methods: ['GET'])]
     public function index(TransactionRepository $transactionRepository): Response
     {
+        // 1. On récupère les transactions de l'utilisateur
+        $transactions = $transactionRepository->findBy(['utilisateur' => $this->getUser()]);
+
+        // 2. On nettoie les Proxies cassés (ID 0 ou fantômes) pour éviter le crash de Doctrine
+        foreach ($transactions as $transaction) {
+            try {
+                // On force Doctrine à charger le Moyen de Paiement
+                if ($transaction->getMoyenPaiement() !== null) {
+                    $transaction->getMoyenPaiement()->getNom(); 
+                }
+            } catch (\Doctrine\ORM\EntityNotFoundException $e) {
+                // 🔥 Si l'objet n'existe pas (ID 0 ou supprimé), on force à null en PHP !
+                $transaction->setMoyenPaiement(null);
+            }
+        }
+
+        // 3. On envoie les transactions nettoyées à Twig
         return $this->render('transaction/index.html.twig', [
-            'transactions' => $transactionRepository->findAll(),
+            'transactions' => $transactions,
         ]);
     }
 
@@ -26,13 +43,15 @@ final class TransactionController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $transaction = new Transaction();
-        $form = $this->createForm(TransactionType::class, $transaction);
+        
+        $form = $this->createForm(TransactionType::class, $transaction, [
+            'user' => $this->getUser(),
+        ]);
+        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // 🔥 L'INJECTION MAGIQUE : Associe l'utilisateur connecté à la transaction
             $transaction->setUtilisateur($this->getUser());
-
             $entityManager->persist($transaction);
             $entityManager->flush();
 
@@ -56,15 +75,22 @@ final class TransactionController extends AbstractController
     #[Route('/{id}/edit', name: 'app_transaction_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Transaction $transaction, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(TransactionType::class, $transaction);
+        try {
+            if ($transaction->getMoyenPaiement() !== null) {
+                $transaction->getMoyenPaiement()->getNom(); // Force le chargement pour déclencher l'erreur si besoin
+            }
+        } catch (\Doctrine\ORM\EntityNotFoundException $e) {
+            $transaction->setMoyenPaiement(null);
+        }
+
+        // On crée le formulaire en passant l'utilisateur connecté (comme on l'a configuré avant)
+        $form = $this->createForm(TransactionType::class, $transaction, [
+            'user' => $this->getUser(),
+        ]);
+        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // 🔥 SÉCURITÉ EDIT : On s'assure que la transaction garde ou récupère bien l'utilisateur connecté
-            if ($transaction->getUtilisateur() === null) {
-                $transaction->setUtilisateur($this->getUser());
-            }
-
             $entityManager->flush();
 
             return $this->redirectToRoute('app_transaction_index', [], Response::HTTP_SEE_OTHER);

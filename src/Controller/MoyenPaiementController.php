@@ -18,7 +18,7 @@ final class MoyenPaiementController extends AbstractController
     public function index(MoyenPaiementRepository $moyenPaiementRepository): Response
     {
         return $this->render('moyen_paiement/index.html.twig', [
-            'moyen_paiements' => $moyenPaiementRepository->findAll(),
+            'moyen_paiements' => $moyenPaiementRepository->findBy(['utilisateur' => $this->getUser()]),
         ]);
     }
 
