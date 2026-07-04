@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec cette adresse email.')]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -39,14 +39,28 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isVerified = false;
 
     /**
+     * @var Collection<int, Categorie>
+     */
+    #[ORM\OneToMany(targetEntity: Categorie::class, mappedBy: 'utilisateur', orphanRemoval: true)]
+    private Collection $categories;
+
+    /**
+     * @var Collection<int, MoyenPaiement>
+     */
+    #[ORM\OneToMany(targetEntity: MoyenPaiement::class, mappedBy: 'utilisateur', orphanRemoval: true)]
+    private Collection $moyenPaiements;
+
+    /**
      * @var Collection<int, Transaction>
      */
-    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user', orphanRemoval: true)]
-    private Collection $yes;
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'utilisateur', orphanRemoval: true)]
+    private Collection $transactions;
 
     public function __construct()
     {
-        $this->yes = new ArrayCollection();
+        $this->categories = new ArrayCollection();
+        $this->moyenPaiements = new ArrayCollection();
+        $this->transactions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -142,29 +156,86 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Transaction>
+     * @return Collection<int, Categorie>
      */
-    public function getYes(): Collection
+    public function getCategories(): Collection
     {
-        return $this->yes;
+        return $this->categories;
     }
 
-    public function addYe(Transaction $ye): static
+    public function addCategory(Categorie $category): static
     {
-        if (!$this->yes->contains($ye)) {
-            $this->yes->add($ye);
-            $ye->setUser($this);
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->setUtilisateur($this);
         }
 
         return $this;
     }
 
-    public function removeYe(Transaction $ye): static
+    public function removeCategory(Categorie $category): static
     {
-        if ($this->yes->removeElement($ye)) {
-            // set the owning side to null (unless already changed)
-            if ($ye->getUser() === $this) {
-                $ye->setUser(null);
+        if ($this->categories->removeElement($category)) {
+            if ($category->getUtilisateur() === $this) {
+                $category->setUtilisateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MoyenPaiement>
+     */
+    public function getMoyenPaiements(): Collection
+    {
+        return $this->moyenPaiements;
+    }
+
+    public function addMoyenPaiement(MoyenPaiement $moyenPaiement): static
+    {
+        if (!$this->moyenPaiements->contains($moyenPaiement)) {
+            $this->moyenPaiements->add($moyenPaiement);
+            $moyenPaiement->setUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMoyenPaiement(MoyenPaiement $moyenPaiement): static
+    {
+        if ($this->moyenPaiements->removeElement($moyenPaiement)) {
+            if ($moyenPaiement->getUtilisateur() === $this) {
+                $moyenPaiement->setUtilisateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Transaction>
+     */
+    public function getTransactions(): Collection
+    {
+        return $this->transactions;
+    }
+
+    public function addTransaction(Transaction $transaction): static
+    {
+        if (!$this->transactions->contains($transaction)) {
+            $this->transactions->add($transaction);
+            $transaction->setUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTransaction(Transaction $transaction): static
+    {
+        if ($this->transactions->removeElement($transaction)) {
+            if ($transaction->getUtilisateur() === $this) {
+                $transaction->setUtilisateur(null);
             }
         }
 

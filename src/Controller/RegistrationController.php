@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Contrôleur gérant l'inscription de nouveaux utilisateurs.
+ */
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
@@ -21,19 +24,15 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $userPasswordHasher, 
         EntityManagerInterface $entityManager
     ): Response {
-        $user = new Utilisateur(); // ou User selon le nom de ton entité
+        $user = new Utilisateur();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             
-            // 🔑 HACHAGE DU MOT DE PASSE :
-            // Si ton formulaire utilise 'plainPassword' (recommandé) :
+            // 🔑 Récupération et hachage sécurisé du mot de passe en clair
             $plainPassword = $form->get('plainPassword')->getData();
             
-            // Si ton formulaire mappe directement le password (alternative) :
-            // $plainPassword = $user->getPassword(); 
-
             $user->setPassword(
                 $userPasswordHasher->hashPassword($user, $plainPassword)
             );

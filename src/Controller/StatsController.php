@@ -13,7 +13,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class StatsController extends AbstractController
 {
     #[Route('/annuel', name: 'app_stats_annuel')]
-    #[Route('/annuel', name: 'app_stats_annuel')]
     public function bilanAnnuel(TransactionRepository $transactionRepository): Response
     {
         $user = $this->getUser();
