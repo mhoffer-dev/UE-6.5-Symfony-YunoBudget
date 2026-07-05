@@ -1,28 +1,26 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouvelle Transaction — YunoBudget{% endblock %}
+{% block title %}Nouvelle Transaction — Yuno Budget{% endblock %}
 
 {% block body %}
-<div class="max-w-md mx-auto px-4 text-white">
+<div class="max-w-md mx-auto px-4">
     
     <!-- En-tête chirurgical -->
     <div class="flex items-center space-x-3 pt-2">
-        <a href="{{ path('app_transaction_index') }}" class="text-zinc-400 hover:text-white transition-colors text-base font-mono">
-            &larr;
+        <a href="{{ path('app_transaction_index') }}" class="text-[var(--text-secondary)] hover:text-violet-500 transition-colors text-base font-mono font-bold">
+            &larr; Retour
         </a>
-        <h1 class="text-xs font-medium tracking-tight text-zinc-400">Ajouter une transaction</h1>
     </div>
 
-    <!-- Section du Titre / Sous-titre épurée -->
+    <!-- Section du Titre -->
     <div class="text-center py-6">
-        <h1 class="text-2xl font-semibold tracking-tight text-white">Nouveau mouvement</h1>
-        <p class="text-xs text-zinc-500 mt-1">Enregistrez un revenu ou une dépense.</p>
-        <div class="w-10 h-[1px] bg-zinc-800 mx-auto mt-3"></div>
+        <h1 class="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">Nouveau mouvement</h1>
+        <p class="text-xs text-[var(--text-secondary)] mt-1">Enregistrez un revenu ou une dépense.</p>
+        <div class="w-12 h-0.5 bg-gradient-to-r from-violet-500 to-pink-500 mx-auto mt-3 rounded-full"></div>
     </div>
 
-    <!-- Formulaire (Champs compacts + Bouton Enregistrer inclus) -->
-    <div class="text-sm">
-        {# On passe explicitement 'transaction': transaction pour éviter l'erreur d'ID #}
+    <!-- Formulaire dans une carte en verre -->
+    <div class="glass-panel p-6 rounded-2xl text-sm">
         {{ include('transaction/_form.html.twig', {
             'button_label': 'Créer la transaction',
             'transaction': transaction

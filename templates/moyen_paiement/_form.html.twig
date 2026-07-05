@@ -1,26 +1,24 @@
-{{ form_start(form, {'attr': {'class': 'space-y-2.5'}}) }}
+{{ form_start(form, {'attr': {'class': 'space-y-4'}}) }}
     
-    {# 1. Rendu des inputs principaux #}
     <div>
         {{ form_widget(form) }}
     </div>
 
-    {# 2. Groupe d'actions principal #}
     <div class="flex flex-col space-y-3 pt-4">
-        <button type="submit" class="w-full bg-white text-black py-2.5 px-4 rounded-xl font-semibold text-xs hover:opacity-90 transition-opacity uppercase tracking-wider shadow-sm">
+        <button type="submit" class="btn-gradient w-full py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider shadow-md cursor-pointer">
             {{ button_label|default('Enregistrer') }}
         </button>
     </div>
 
 {{ form_end(form) }}
 
-{# 3. Formulaire de Suppression Indépendant (Uniquement à l'édition) #}
+{# Formulaire de Suppression Indépendant #}
 {% if moyen_paiement is defined and moyen_paiement.id is not null %}
-    <form method="post" action="{{ path('app_moyen_paiement_delete', {'id': moyen_paiement.id}) }}" onsubmit="return confirm('Confirmer la suppression définitive de ce moyen de paiement ?');" class="mt-3">
+    <form method="post" action="{{ path('app_moyen_paiement_delete', {'id': moyen_paiement.id}) }}" onsubmit="return confirm('Confirmer la suppression définitive de ce moyen de paiement ?');" class="mt-4 pt-4 border-t border-[var(--border-color)]">
         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ moyen_paiement.id) }}">
         
-        <button type="submit" class="w-full bg-transparent border border-red-500/20 text-red-400 py-2.5 px-4 rounded-xl font-medium text-xs hover:bg-red-500/10 hover:border-red-500/40 transition-all uppercase tracking-wider text-center">
+        <button type="submit" class="w-full bg-transparent border border-red-500/30 text-red-500 py-2.5 px-4 rounded-xl font-semibold text-xs hover:bg-red-500/10 hover:border-red-500 transition-all uppercase tracking-wider text-center cursor-pointer">
             Supprimer le moyen de paiement
         </button>
     </form>
-{% endif %} {# <-- C'était cette ligne qui manquait ou s'était mal fermée ! #}
+{% endif %}

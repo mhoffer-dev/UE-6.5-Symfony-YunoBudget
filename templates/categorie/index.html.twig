@@ -1,55 +1,55 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Catégories - YunoBudget{% endblock %}
+{% block title %}Catégories - Yuno Budget{% endblock %}
 
 {% block body %}
-<div class="sm:flex sm:items-center sm:justify-between mb-8 pb-4 border-b border-[#2D2D31]">
+<div class="sm:flex sm:items-center sm:justify-between mb-8 pb-4 border-b border-[var(--border-color)]">
     <div>
-        <h1 class="text-2xl font-semibold tracking-tight text-white">Vos Catégories</h1>
-        <p class="mt-2 text-sm text-zinc-400">Gérez vos postes de dépenses et sources de revenus.</p>
+        <h1 class="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">Vos Catégories</h1>
+        <p class="mt-2 text-sm text-[var(--text-secondary)]">Gérez vos postes de dépenses et sources de revenus.</p>
     </div>
     <div class="mt-4 sm:mt-0">
-        <a href="{{ path('app_categorie_new') }}" style="background-color: #FFFFFF; color: #0B0B0C;" class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-md shadow-sm hover:opacity-90 transition-opacity">
+        <a href="{{ path('app_categorie_new') }}" class="btn-gradient inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm transition-all">
             + Nouvelle catégorie
         </a>
     </div>
 </div>
 
 <div class="flex flex-col mt-6">
-    <div class="overflow-x-auto border border-[#2D2D31] rounded-xl" style="background-color: #161618;">
-        <table class="min-w-full divide-y divide-[#2D2D31] text-left text-sm">
+    <div class="overflow-x-auto table-container">
+        <table class="fintech-table">
             <thead>
-                <tr class="text-zinc-400 text-xs uppercase tracking-wider bg-zinc-900/50">
-                    <th class="px-6 py-4 font-semibold">Nom</th>
-                    <th class="px-6 py-4 font-semibold">Type</th>
-                    <th class="px-6 py-4 font-semibold text-center">Actions</th>
+                <tr>
+                    <th>Nom</th>
+                    <th>Type</th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-[#2D2D31]">
+            <tbody>
             {% for categorie in categories %}
-                <tr class="hover:bg-zinc-800/30 transition-colors">
-                    <td class="px-6 py-4 text-sm font-medium text-white flex items-center space-x-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-zinc-500 border border-zinc-400/20"></span>
-                        <span>{{ categorie.nom }}</span>
+                <tr>
+                    <td class="font-medium flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-violet-500 shadow-sm shadow-violet-500/50"></span>
+                        <span class="text-[var(--text-primary)] font-semibold">{{ categorie.nom }}</span>
                     </td>
-                    <td class="px-6 py-4 text-sm">
+                    <td>
                         {% if categorie.type.value|lower == 'revenu' %}
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-500">
                                 💰 Revenu
                             </span>
                         {% else %}
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/10 border border-red-500/20 text-red-400">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-pink-500/15 border border-pink-500/30 text-pink-500">
                                 📉 Dépense
                             </span>
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 text-sm font-medium text-center">
-                        <a href="{{ path('app_categorie_edit', {'id': categorie.id}) }}">Modifier</a>
+                    <td class="text-center font-medium">
+                        <a href="{{ path('app_categorie_edit', {'id': categorie.id}) }}" class="text-violet-500 hover:text-pink-500 transition-colors font-semibold">Modifier</a>
                     </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="4" class="px-6 py-12 text-center text-sm text-zinc-500">Aucune catégorie enregistrée.</td>
+                    <td colspan="3" class="py-12 text-center text-sm text-[var(--text-secondary)]">Aucune catégorie enregistrée.</td>
                 </tr>
             {% endfor %}
             </tbody>

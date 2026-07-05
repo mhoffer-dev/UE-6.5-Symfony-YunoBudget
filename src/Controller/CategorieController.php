@@ -10,8 +10,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/categorie')]
+#[IsGranted('ROLE_USER')]
 final class CategorieController extends AbstractController
 {
     #[Route(name: 'app_categorie_index', methods: ['GET'])]
@@ -30,12 +32,12 @@ final class CategorieController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Force l'utilisateur connecté
             $categorie->setUtilisateur($this->getUser());
 
             $entityManager->persist($categorie);
             $entityManager->flush();
 
+            $this->addFlash('success', 'Catégorie créée avec succès.');
             return $this->redirectToRoute('app_categorie_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -48,6 +50,11 @@ final class CategorieController extends AbstractController
     #[Route('/{id}/edit', name: 'app_categorie_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Categorie $categorie, EntityManagerInterface $entityManager): Response
     {
+        // 🛡️ Protection Cybersécurité IDOR : Vérification stricte du propriétaire
+        if ($categorie->getUtilisateur() !== $this->getUser()) {
+            throw $this->createAccessDeniedException("Vous n'êtes pas autorisé à modifier cette catégorie.");
+        }
+
         $form = $this->createForm(CategorieType::class, $categorie);
         $form->handleRequest($request);
 
@@ -58,6 +65,7 @@ final class CategorieController extends AbstractController
 
             $entityManager->flush();
 
+            $this->addFlash('success', 'Catégorie modifiée avec succès.');
             return $this->redirectToRoute('app_categorie_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -70,11 +78,17 @@ final class CategorieController extends AbstractController
     #[Route('/{id}', name: 'app_categorie_delete', methods: ['POST'])]
     public function delete(Request $request, Categorie $categorie, EntityManagerInterface $entityManager): Response
     {
+        // 🛡️ Protection Cybersécurité IDOR : Vérification stricte du propriétaire
+        if ($categorie->getUtilisateur() !== $this->getUser()) {
+            throw $this->createAccessDeniedException("Vous n'êtes pas autorisé à supprimer cette catégorie.");
+        }
+
         $token = $request->getPayload()->getString('_token');
 
         if ($this->isCsrfTokenValid('delete'.$categorie->getId(), $token)) {
             $entityManager->remove($categorie);
             $entityManager->flush();
+            $this->addFlash('success', 'Catégorie supprimée avec succès.');
         }
 
         return $this->redirectToRoute('app_categorie_index', [], Response::HTTP_SEE_OTHER);
