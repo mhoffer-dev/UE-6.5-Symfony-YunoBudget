@@ -4,210 +4,274 @@
 
 {% block body %}
 <style>
-    :root {
-        --bg-main: #0B0B0C;
-        --card-bg: #161618;
-        --input-bg: #1F1F22;
-        --border-color: #2D2D31;
-        --text-primary: #FFFFFF;
-        --text-secondary: #8E8E93;
-        --error-color: #FF453A;
-    }
-
-    .register-wrapper, .register-wrapper * {
-        box-sizing: border-box;
-    }
-
     .register-wrapper {
-        height: 100vh;
+        min-height: 100vh;
+        width: 100%;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--bg-main);
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        padding: 20px;
+        justify-content: space-between;
+        position: relative;
         overflow: hidden;
+        background-color: var(--bg-main);
+        transition: background-color 0.4s ease;
     }
 
-    .register-card {
-        background-color: var(--card-bg);
+    /* Floating Glowing Orbs behind the Glass */
+    .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 1;
+        pointer-events: none;
+        animation: float 14s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+        width: 450px;
+        height: 450px;
+        top: -10%;
+        left: 15%;
+        background: var(--orb-1, rgba(139, 92, 246, 0.25));
+    }
+
+    .orb-2 {
+        width: 500px;
+        height: 500px;
+        bottom: -15%;
+        right: 10%;
+        background: var(--orb-2, rgba(236, 72, 153, 0.2));
+        animation-delay: -7s;
+    }
+
+    @keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(40px, 30px) scale(1.08); }
+        100% { transform: translate(-30px, 20px) scale(0.95); }
+    }
+
+    /* Hi-Tech Glass Card */
+    .fintech-glass-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
         border: 1px solid var(--border-color);
-        padding: 35px 35px;
-        border-radius: 14px;
+        box-shadow: var(--glass-shadow), 0 0 40px -10px var(--border-glow);
+        border-radius: 20px;
         width: 100%;
-        max-width: 400px;
+        max-width: 440px;
+        padding: 42px 38px;
+        position: relative;
+        z-index: 10;
+        transition: all 0.3s ease;
     }
 
-    .register-header {
-        text-align: center;
-        margin-bottom: 24px;
-    }
-
-    .register-header h1 {
-        font-size: 24px;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin: 0 0 8px 0;
-        letter-spacing: -0.5px;
-    }
-
-    .register-header p {
-        font-size: 13px;
-        color: var(--text-secondary);
-        margin: 0;
-        line-height: 1.4;
+    .fintech-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 9999px;
+        background: var(--badge-bg);
+        color: var(--badge-text);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
     }
 
     .form-group {
-        margin-bottom: 16px;
+        margin-bottom: 20px;
     }
 
     .form-group label {
         display: block;
-        font-size: 11px;
+        font-size: 11px !important;
         text-transform: uppercase;
-        font-weight: 600;
-        letter-spacing: 0.5px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
         color: var(--text-secondary);
         margin-bottom: 8px;
     }
 
     .form-group input {
         width: 100%;
-        padding: 11px 14px;
+        padding: 14px 16px;
         font-size: 14px;
-        border-radius: 8px;
+        border-radius: 12px;
         border: 1px solid var(--border-color);
         background-color: var(--input-bg);
         color: var(--text-primary);
-        transition: border-color 0.2s ease;
+        transition: all 0.25s ease;
     }
 
     .form-group input:focus {
         outline: none;
-        border-color: #55555A;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+        background-color: var(--card-bg);
     }
 
     .form-checkbox {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 20px;
+        gap: 10px;
+        margin-bottom: 26px;
     }
 
     .form-checkbox input[type="checkbox"] {
-        accent-color: var(--text-primary);
-        width: 15px;
-        height: 15px;
+        accent-color: var(--accent-color);
+        width: 17px;
+        height: 17px;
         cursor: pointer;
+        border-radius: 4px;
     }
 
     .form-checkbox label {
         font-size: 13px;
         color: var(--text-secondary);
         cursor: pointer;
+        font-weight: 500;
+        margin-bottom: 0 !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
     }
 
-    .btn-submit {
+    .btn-fintech {
         width: 100%;
-        padding: 12px;
-        background-color: var(--text-primary);
-        color: var(--bg-main);
+        padding: 15px;
+        background: var(--accent-gradient);
+        color: #FFFFFF;
         border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
         cursor: pointer;
-        transition: opacity 0.2s ease;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
 
-    .btn-submit:hover {
-        opacity: 0.9;
+    .btn-fintech:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(139, 92, 246, 0.6);
     }
 
     .form-errors {
-        background: rgba(255, 69, 58, 0.1);
-        border: 1px solid rgba(255, 69, 58, 0.2);
-        padding: 10px;
-        border-radius: 8px;
-        color: var(--error-color);
+        background: rgba(255, 69, 58, 0.15);
+        border: 1px solid rgba(255, 69, 58, 0.3);
+        padding: 12px 16px;
+        border-radius: 12px;
+        color: #FF453A;
         font-size: 13px;
-        margin-bottom: 16px;
+        font-weight: 600;
+        margin-bottom: 22px;
         text-align: center;
+        backdrop-filter: blur(10px);
     }
 
     .login-link {
         text-align: center;
-        margin-top: 18px;
+        margin-top: 26px;
         font-size: 13px;
         color: var(--text-secondary);
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
     }
 
     .login-link a {
-        color: var(--text-primary);
+        color: var(--accent-color);
         text-decoration: none;
-        font-weight: 500;
-        margin-left: 4px;
+        font-weight: 700;
+        margin-left: 6px;
+        transition: color 0.2s;
     }
 
     .login-link a:hover {
         text-decoration: underline;
-    }
-
-    .register-footer {
-        margin-top: 24px;
-        font-size: 11px;
-        color: #444448;
-        text-align: center;
+        color: #D946EF;
     }
 </style>
 
 <div class="register-wrapper">
-    <div class="register-card">
-        <div class="register-header">
-            <h1>Créer un compte</h1>
-            <p>Rejoignez Yuno et pilotez votre budget en toute sécurité.</p>
-        </div>
+    {# Glowing Orbs #}
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
 
-        {% if not registrationForm.vars.valid %}
-            <div class="form-errors">
-                {{ form_errors(registrationForm) }}
-                {{ form_errors(registrationForm.email) }}
-                {{ form_errors(registrationForm.plainPassword) }}
+    {# Top Header with Brand & Theme Switcher #}
+    <header class="w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between z-20">
+        <a href="{{ path('app_home') }}" class="flex items-center space-x-3 font-heading font-extrabold text-xl tracking-tight">
+            <span class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-pink-500 flex items-center justify-center text-white text-lg shadow-lg shadow-violet-500/30">⚡</span>
+            <span class="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">YUNO BUDGET</span>
+        </a>
+
+        {# Thème Switcher en haut de la page register #}
+        <button onclick="toggleTheme()" class="theme-toggle-btn flex items-center space-x-2 px-4 py-2 rounded-full border border-[var(--border-color)] bg-[var(--input-bg)] text-xs font-bold hover:border-violet-500 transition-all shadow-md cursor-pointer z-30">
+            <span>⚡</span> <span>Thème Violet</span>
+        </button>
+    </header>
+
+    {# Center Card #}
+    <div class="flex-grow flex items-center justify-center px-4 py-8 z-20">
+        <div class="fintech-glass-card">
+            <div class="text-center mb-8">
+                <div class="fintech-badge">
+                    <span>🚀 ONBOARDING INTEL v2.6</span>
+                </div>
+                <h1 class="font-heading text-3xl font-extrabold tracking-tight mb-2 text-[var(--text-primary)]">
+                    Nouveau Portefeuille
+                </h1>
+                <p class="text-xs text-[var(--text-secondary)] font-medium">
+                    Initialisez votre accès chiffré au réseau YunoBudget.
+                </p>
             </div>
-        {% endif %}
 
-        {{ form_start(registrationForm) }}
-            <div class="form-group">
-                {{ form_label(registrationForm.email, "Adresse Email") }}
-                {{ form_widget(registrationForm.email, {'attr': {'placeholder': 'nom@exemple.com'}}) }}
-            </div>
-
-            <div class="form-group">
-                {{ form_label(registrationForm.plainPassword, "Mot de passe") }}
-                {{ form_widget(registrationForm.plainPassword, {'attr': {'placeholder': '••••••••'}}) }}
-            </div>
-
-            {% if registrationForm.agreeTerms is defined %}
-                <div class="form-checkbox">
-                    {{ form_widget(registrationForm.agreeTerms) }}
-                    {{ form_label(registrationForm.agreeTerms, "J'accepte les conditions d'utilisation") }}
+            {% if not registrationForm.vars.valid %}
+                <div class="form-errors">
+                    ⚠️ {{ form_errors(registrationForm) }}
+                    {{ form_errors(registrationForm.email) }}
+                    {{ form_errors(registrationForm.plainPassword) }}
                 </div>
             {% endif %}
 
-            {{ form_widget(registrationForm._token) }}
+            {{ form_start(registrationForm) }}
+                <div class="form-group">
+                    {{ form_label(registrationForm.email, "Identifiant Email") }}
+                    {{ form_widget(registrationForm.email, {'attr': {'placeholder': 'nom@financier.com'}}) }}
+                </div>
 
-            <button type="submit" class="btn-submit">S'inscrire</button>
-        {{ form_end(registrationForm, {'render_rest': false}) }}
+                <div class="form-group">
+                    {{ form_label(registrationForm.plainPassword, "Mot de passe sécurisé") }}
+                    {{ form_widget(registrationForm.plainPassword, {'attr': {'placeholder': '••••••••••••'}}) }}
+                </div>
 
-        <div class="login-link">
-            Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a>
+                {% if registrationForm.agreeTerms is defined %}
+                    <div class="form-checkbox">
+                        {{ form_widget(registrationForm.agreeTerms) }}
+                        {{ form_label(registrationForm.agreeTerms, "J'accepte le protocole de sécurité et de confidentialité") }}
+                    </div>
+                {% endif %}
+
+                {{ form_widget(registrationForm._token) }}
+
+                <button type="submit" class="btn-fintech">
+                    <span>⚡</span> Initialiser le Compte
+                </button>
+            {{ form_end(registrationForm, {'render_rest': false}) }}
+
+            <div class="login-link">
+                Déjà titulaire d'un compte ? <a href="{{ path('app_login') }}">Connexion Terminal &rarr;</a>
+            </div>
         </div>
     </div>
 
-    <div class="register-footer">
-        &copy; 2026 YunoBudget &bull; Obsidian Precision
-    </div>
+    {# Footer #}
+    <footer class="w-full text-center py-6 text-xs text-[var(--text-secondary)] z-20 font-medium">
+        &copy; {{ "now"|date("Y") }} <span class="text-[var(--text-primary)] font-bold">YUNO BUDGET</span> &bull; <a href="https://developpement-web-communication-apprentissages.fr/" target="_blank" rel="noopener noreferrer" class="text-violet-400 hover:text-pink-400 underline transition-colors font-semibold">Université de Strasbourg</a> LPDWCA 2025-2026
+    </footer>
 </div>
 {% endblock %}

@@ -1,10 +1,151 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ titre }}{% endblock %}
+{% block title %}Accueil - Yuno Budget{% endblock %}
 
 {% block body %}
-    <main style="font-family: sans-serif; padding: 2rem; text-align: center;">
-        <h1>{{ titre }}</h1>
-        <p>Le template fonctionne enfin et l'arborescence est correcte ! 🎉</p>
-    </main>
+<div class="space-y-10 py-6">
+    {# --- HERO SECTION --- #}
+    <div class="glass-panel p-8 md:p-10 rounded-3xl relative overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-4 max-w-xl">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-violet-500/15 text-violet-500 border border-violet-500/30">
+                🚀 Bienvenue sur Yuno Budget
+            </span>
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--text-primary)] leading-tight font-heading">
+                Prenez le contrôle absolu de votre <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-pink-500">avenir financier</span>.
+            </h1>
+            <p class="text-sm md:text-base text-[var(--text-secondary)]">
+                Une plateforme de gestion de budget hi-tech et intuitive. Suivez vos revenus, analysez vos dépenses et optimisez votre épargne en toute simplicité.
+            </p>
+            <div class="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
+                <a href="{{ path('app_transaction_index') }}" class="btn-gradient px-6 py-3 rounded-xl text-sm font-bold shadow-lg">
+                    📊 Voir mes transactions
+                </a>
+                <a href="{{ path('app_transaction_new') }}" class="px-6 py-3 rounded-xl text-sm font-semibold bg-[var(--card-bg)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-violet-500 transition-all">
+                    + Nouvelle dépense
+                </a>
+            </div>
+        </div>
+        <div class="hidden lg:flex items-center justify-center p-6">
+            <div class="w-48 h-48 rounded-full bg-gradient-to-tr from-violet-600/30 via-pink-500/20 to-transparent blur-2xl absolute"></div>
+            <div class="relative z-10 glass-panel p-6 rounded-2xl border border-violet-500/30 text-center space-y-2 shadow-2xl transform rotate-3 hover:rotate-0 transition-transform">
+                <div class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-pink-500">100%</div>
+                <div class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Maîtrise du budget</div>
+            </div>
+        </div>
+    </div>
+
+    {% if app.user %}
+        {# --- WIDGET DU SOLDE ACTUEL --- #}
+        <div>
+            <h2 class="text-lg font-bold text-[var(--text-primary)] mb-4 tracking-tight flex items-center gap-2">
+                <span>💰</span> Votre Balancier Financier (Solde Globale)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-emerald-500">
+                    <span class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Revenus Globaux</span>
+                    <div class="text-3xl font-extrabold text-emerald-500 mt-2">+{{ totalRevenus|number_format(2, ',', ' ') }} €</div>
+                    <p class="text-xs text-[var(--text-secondary)] mt-1">Total des entrées enregistrées</p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border-l-4 border-pink-500">
+                    <span class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Dépenses Globales</span>
+                    <div class="text-3xl font-extrabold text-pink-500 mt-2">-{{ totalDepenses|number_format(2, ',', ' ') }} €</div>
+                    <p class="text-xs text-[var(--text-secondary)] mt-1">Total des sorties enregistrées</p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border-l-4 {{ solde >= 0 ? 'border-violet-500' : 'border-amber-500' }}">
+                    <span class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Solde Net Épargné</span>
+                    <div class="text-3xl font-extrabold mt-2 {{ solde >= 0 ? 'text-violet-500' : 'text-pink-500' }}">
+                        {{ solde >= 0 ? '+' : '' }}{{ solde|number_format(2, ',', ' ') }} €
+                    </div>
+                    <p class="text-xs text-[var(--text-secondary)] mt-1">Capacité d'épargne actuelle</p>
+                </div>
+            </div>
+        </div>
+
+        {# --- DERNIÈRES TRANSACTIONS WIDGET --- #}
+        {% if recentTransactions is not empty %}
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-2">
+                    <span>⚡</span> Derniers Mouvements
+                </h2>
+                <a href="{{ path('app_transaction_index') }}" class="text-xs font-bold text-violet-500 hover:text-pink-500 transition-colors">
+                    Voir tout l'historique &rarr;
+                </a>
+            </div>
+            <div class="table-container overflow-x-auto">
+                <table class="fintech-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Catégorie</th>
+                            <th class="text-right">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in recentTransactions %}
+                        <tr>
+                            <td class="text-[var(--text-secondary)] font-mono text-xs">
+                                {{ t.dateTransaction ? t.dateTransaction|date('d/m/Y H:i') : '' }}
+                            </td>
+                            <td class="font-bold text-[var(--text-primary)]">{{ t.libelleTransaction }}</td>
+                            <td>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-violet-500/15 text-violet-500 border border-violet-500/30">
+                                    {{ t.categorie ? t.categorie.nom : 'Sans catégorie' }}
+                                </span>
+                            </td>
+                            <td class="text-right font-extrabold {% if t.montant < 0 %}text-pink-500{% else %}text-emerald-500{% endif %}">
+                                {% if t.montant > 0 %}+{% endif %}{{ t.montant|number_format(2, ',', ' ') }} €
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    {% endif %}
+
+    {# --- QUICK ACTIONS GRID --- #}
+    <div>
+        <h2 class="text-lg font-bold text-[var(--text-primary)] mb-4 tracking-tight flex items-center gap-2">
+            <span>🛠️</span> Accès Rapides
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            
+            <a href="{{ path('app_transaction_index') }}" class="glass-panel p-6 rounded-2xl group hover:border-violet-500/50 transition-all transform hover:-translate-y-1">
+                <div class="w-12 h-12 rounded-xl bg-violet-500/15 flex items-center justify-center text-violet-500 text-xl mb-4 group-hover:scale-110 transition-transform">
+                    💳
+                </div>
+                <h3 class="font-bold text-[var(--text-primary)] text-base">Transactions</h3>
+                <p class="text-xs text-[var(--text-secondary)] mt-1">Consultez, filtrez et gérez l'historique de vos mouvements.</p>
+            </a>
+
+            <a href="{{ path('app_categorie_index') }}" class="glass-panel p-6 rounded-2xl group hover:border-pink-500/50 transition-all transform hover:-translate-y-1">
+                <div class="w-12 h-12 rounded-xl bg-pink-500/15 flex items-center justify-center text-pink-500 text-xl mb-4 group-hover:scale-110 transition-transform">
+                    🏷️
+                </div>
+                <h3 class="font-bold text-[var(--text-primary)] text-base">Catégories</h3>
+                <p class="text-xs text-[var(--text-secondary)] mt-1">Organisez vos postes de dépenses et sources de revenus.</p>
+            </a>
+
+            <a href="{{ path('app_moyen_paiement_index') }}" class="glass-panel p-6 rounded-2xl group hover:border-emerald-500/50 transition-all transform hover:-translate-y-1">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-500 text-xl mb-4 group-hover:scale-110 transition-transform">
+                    🏦
+                </div>
+                <h3 class="font-bold text-[var(--text-primary)] text-base">Moyens de paiement</h3>
+                <p class="text-xs text-[var(--text-secondary)] mt-1">Gérez vos comptes bancaires, cartes et portefeuilles.</p>
+            </a>
+
+            <a href="{{ path('app_stats_annuel') }}" class="glass-panel p-6 rounded-2xl group hover:border-amber-500/50 transition-all transform hover:-translate-y-1">
+                <div class="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-500 text-xl mb-4 group-hover:scale-110 transition-transform">
+                    📈
+                </div>
+                <h3 class="font-bold text-[var(--text-primary)] text-base">Bilan Annuel</h3>
+                <p class="text-xs text-[var(--text-secondary)] mt-1">Visualisez vos graphiques et performances financières.</p>
+            </a>
+
+        </div>
+    </div>
+</div>
 {% endblock %}

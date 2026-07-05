@@ -4,208 +4,272 @@
 
 {% block body %}
 <style>
-    :root {
-        --bg-main: #0B0B0C; /* Fond ultra sombre de la maquette */
-        --card-bg: #161618; /* Couleur secondaire Obsidian pour les cartes */
-        --input-bg: #1F1F22; /* Fond des inputs */
-        --border-color: #2D2D31; /* Bordure discrète */
-        --text-primary: #FFFFFF; /* Blanc pur pour les titres et boutons inversés */
-        --text-secondary: #8E8E93; /* Gris neutre pour les sous-titres et labels */
-        --error-color: #FF453A; /* Rouge iOS pour les erreurs */
-    }
-
-    .login-wrapper, .login-wrapper * {
-        box-sizing: border-box;
-    }
-
     .login-wrapper {
-        height: 100vh;
+        min-height: 100vh;
+        width: 100%;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--bg-main);
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        padding: 20px;
+        justify-content: space-between;
+        position: relative;
         overflow: hidden;
+        background-color: var(--bg-main);
+        transition: background-color 0.4s ease;
     }
 
-    .login-card {
-        background-color: var(--card-bg);
+    /* Floating Glowing Orbs behind the Glass */
+    .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 1;
+        pointer-events: none;
+        animation: float 14s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+        width: 450px;
+        height: 450px;
+        top: -10%;
+        left: 15%;
+        background: var(--orb-1, rgba(139, 92, 246, 0.25));
+    }
+
+    .orb-2 {
+        width: 500px;
+        height: 500px;
+        bottom: -15%;
+        right: 10%;
+        background: var(--orb-2, rgba(236, 72, 153, 0.2));
+        animation-delay: -7s;
+    }
+
+    @keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(40px, 30px) scale(1.08); }
+        100% { transform: translate(-30px, 20px) scale(0.95); }
+    }
+
+    /* Hi-Tech Glass Card */
+    .fintech-glass-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
         border: 1px solid var(--border-color);
-        padding: 40px 35px;
-        border-radius: 14px;
+        box-shadow: var(--glass-shadow), 0 0 40px -10px var(--border-glow);
+        border-radius: 20px;
         width: 100%;
-        max-width: 400px;
+        max-width: 440px;
+        padding: 42px 38px;
+        position: relative;
+        z-index: 10;
+        transition: all 0.3s ease;
     }
 
-    .login-header {
-        text-align: center;
-        margin-bottom: 28px;
-    }
-
-    .login-header h1 {
-        font-size: 24px;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin: 0 0 8px 0;
-        letter-spacing: -0.5px;
-    }
-
-    .login-header p {
-        font-size: 13px;
-        color: var(--text-secondary);
-        margin: 0;
-        line-height: 1.4;
+    .fintech-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 9999px;
+        background: var(--badge-bg);
+        color: var(--badge-text);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
     }
 
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 22px;
     }
 
     .form-group label {
         display: block;
-        font-size: 11px;
+        font-size: 11px !important;
         text-transform: uppercase;
-        font-weight: 600;
-        letter-spacing: 0.5px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
         color: var(--text-secondary);
         margin-bottom: 8px;
     }
 
     .form-group input {
         width: 100%;
-        padding: 12px 14px;
+        padding: 14px 16px;
         font-size: 14px;
-        border-radius: 8px;
+        border-radius: 12px;
         border: 1px solid var(--border-color);
         background-color: var(--input-bg);
         color: var(--text-primary);
-        transition: border-color 0.2s ease;
+        transition: all 0.25s ease;
     }
 
     .form-group input:focus {
         outline: none;
-        border-color: #55555A;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+        background-color: var(--card-bg);
     }
 
     .form-checkbox {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 24px;
+        gap: 10px;
+        margin-bottom: 28px;
     }
 
     .form-checkbox input[type="checkbox"] {
-        accent-color: var(--text-primary);
-        width: 15px;
-        height: 15px;
+        accent-color: var(--accent-color);
+        width: 17px;
+        height: 17px;
         cursor: pointer;
+        border-radius: 4px;
     }
 
     .form-checkbox label {
         font-size: 13px;
         color: var(--text-secondary);
         cursor: pointer;
+        font-weight: 500;
+        margin-bottom: 0 !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
     }
 
-    .btn-submit {
+    .btn-fintech {
         width: 100%;
-        padding: 12px;
-        background-color: var(--text-primary); /* Bouton blanc éclatant comme la maquette */
-        color: var(--bg-main); /* Texte sombre */
+        padding: 15px;
+        background: var(--accent-gradient);
+        color: #FFFFFF;
         border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
         cursor: pointer;
-        transition: opacity 0.2s ease;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
     }
 
-    .btn-submit:hover {
-        opacity: 0.9;
+    .btn-fintech:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(139, 92, 246, 0.6);
     }
 
     .form-errors {
-        background: rgba(255, 69, 58, 0.1);
-        border: 1px solid rgba(255, 69, 58, 0.2);
-        padding: 10px;
-        border-radius: 8px;
-        color: var(--error-color);
+        background: rgba(255, 69, 58, 0.15);
+        border: 1px solid rgba(255, 69, 58, 0.3);
+        padding: 12px 16px;
+        border-radius: 12px;
+        color: #FF453A;
         font-size: 13px;
-        margin-bottom: 18px;
+        font-weight: 600;
+        margin-bottom: 22px;
         text-align: center;
+        backdrop-filter: blur(10px);
     }
 
     .register-link {
         text-align: center;
-        margin-top: 20px;
+        margin-top: 26px;
         font-size: 13px;
         color: var(--text-secondary);
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
     }
 
     .register-link a {
-        color: var(--text-primary);
+        color: var(--accent-color);
         text-decoration: none;
-        font-weight: 500;
-        margin-left: 4px;
+        font-weight: 700;
+        margin-left: 6px;
+        transition: color 0.2s;
     }
 
     .register-link a:hover {
         text-decoration: underline;
-    }
-
-    .login-footer {
-        margin-top: 24px;
-        font-size: 11px;
-        color: #444448;
-        text-align: center;
+        color: #D946EF;
     }
 </style>
 
 <div class="login-wrapper">
-    <div class="login-card">
-        <div class="login-header">
-            <h1>Bienvenue sur Yuno</h1>
-            <p>Reprenez le contrôle total de vos finances avec une clarté absolue.</p>
-        </div>
+    {# Glowing Orbs #}
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
 
-        <form method="post">
-            {% if error %}
-                <div class="form-errors">
-                    {{ error.messageKey|trans(error.messageData, 'security') }}
+    {# Top Header with Brand & Theme Switcher #}
+    <header class="w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between z-20">
+        <a href="{{ path('app_home') }}" class="flex items-center space-x-3 font-heading font-extrabold text-xl tracking-tight">
+            <span class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-pink-500 flex items-center justify-center text-white text-lg shadow-lg shadow-violet-500/30">⚡</span>
+            <span class="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">YUNO BUDGET</span>
+        </a>
+
+        {# Thème Switcher en haut de la page login #}
+        <button onclick="toggleTheme()" class="theme-toggle-btn flex items-center space-x-2 px-4 py-2 rounded-full border border-[var(--border-color)] bg-[var(--input-bg)] text-xs font-bold hover:border-violet-500 transition-all shadow-md cursor-pointer z-30">
+            <span>⚡</span> <span>Thème Violet</span>
+        </button>
+    </header>
+
+    {# Center Card #}
+    <div class="flex-grow flex items-center justify-center px-4 py-8 z-20">
+        <div class="fintech-glass-card">
+            <div class="text-center mb-8">
+                <div class="fintech-badge">
+                    <span>🔐 SYSTEM AUTHENTICATION v2.6</span>
                 </div>
-            {% endif %}
-
-            <div class="form-group">
-                <label for="inputEmail">Adresse Email</label>
-                <input type="email" value="{{ last_username }}" name="email" id="inputEmail" autocomplete="email" placeholder="nom@exemple.com" required autofocus>
+                <h1 class="font-heading text-3xl font-extrabold tracking-tight mb-2 text-[var(--text-primary)]">
+                    Espace Client Pro
+                </h1>
+                <p class="text-xs text-[var(--text-secondary)] font-medium">
+                    Accédez à votre tableau de bord financier haute précision.
+                </p>
             </div>
 
-            <div class="form-group">
-                <label for="inputPassword">Mot de passe</label>
-                <input type="password" name="password" id="inputPassword" autocomplete="current-password" placeholder="••••••••" required>
+            <form method="post">
+                {% if error %}
+                    <div class="form-errors">
+                        ⚠️ {{ error.messageKey|trans(error.messageData, 'security') }}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="inputEmail">Identifiant Email</label>
+                    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" autocomplete="email" placeholder="nom@financier.com" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="inputPassword" class="!mb-0">Mot de passe crypté</label>
+                    </div>
+                    <input type="password" name="password" id="inputPassword" autocomplete="current-password" placeholder="••••••••••••" required>
+                </div>
+
+                <div class="form-checkbox">
+                    <input type="checkbox" name="_remember_me" id="remember_me">
+                    <label for="remember_me">Maintenir la session sécurisée active</label>
+                </div>
+
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <button class="btn-fintech" type="submit">
+                    <span>⚡</span> Accéder au Terminal
+                </button>
+            </form>
+
+            <div class="register-link">
+                Nouveau sur Yuno ? <a href="{{ path('app_register') }}">Créer un compte portefeuille &rarr;</a>
             </div>
-
-            <div class="form-checkbox">
-                <input type="checkbox" name="_remember_me" id="remember_me">
-                <label for="remember_me">Se souvenir de moi</label>
-            </div>
-
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-            <button class="btn-submit" type="submit">
-                Se connecter
-            </button>
-        </form>
-
-        <div class="register-link">
-            OU <a href="{{ path('app_register') }}">Créer un compte</a>
         </div>
     </div>
 
-    <div class="login-footer">
-        &copy; 2026 YunoBudget &bull; Obsidian Precision
-    </div>
+    {# Footer #}
+    <footer class="w-full text-center py-6 text-xs text-[var(--text-secondary)] z-20 font-medium">
+        &copy; {{ "now"|date("Y") }} <span class="text-[var(--text-primary)] font-bold">YUNO BUDGET</span> &bull; <a href="https://developpement-web-communication-apprentissages.fr/" target="_blank" rel="noopener noreferrer" class="text-violet-400 hover:text-pink-400 underline transition-colors font-semibold">Université de Strasbourg</a> LPDWCA 2025-2026
+    </footer>
 </div>
 {% endblock %}

@@ -1,29 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Bilan Annuel {{ annee }} - YunoBudget{% endblock %}
+{% block title %}Bilan Annuel {{ annee }} - Yuno Budget{% endblock %}
 
 {% block body %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="space-y-8">
-    <div>
-        <h1 class="text-2xl font-bold tracking-tight text-white">Bilan Annuel — {{ annee }}</h1>
-        <p class="text-zinc-400 text-sm">Analyse globale de vos flux financiers de l'année.</p>
+    <div class="pb-4 border-b border-[var(--border-color)]">
+        <h1 class="text-2xl font-bold tracking-tight text-[var(--text-primary)]">Bilan Annuel — {{ annee }}</h1>
+        <p class="text-[var(--text-secondary)] text-sm mt-1">Analyse globale de vos flux financiers de l'année en cours.</p>
     </div>
 
     {# --- CARTES DE SYNTHÈSE --- #}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div class="p-5 rounded-2xl border border-[#2D2D31]" style="background-color: #161618;">
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Total Revenus</span>
-            <div class="text-2xl font-bold text-green-400 mt-1">{{ totalRevenus|number_format(2, ',', ' ') }} €</div>
+        <div class="glass-panel p-6 rounded-2xl">
+            <span class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Total Revenus</span>
+            <div class="text-3xl font-extrabold text-emerald-500 mt-2">+{{ totalRevenus|number_format(2, ',', ' ') }} €</div>
         </div>
-        <div class="p-5 rounded-2xl border border-[#2D2D31]" style="background-color: #161618;">
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Total Dépenses</span>
-            <div class="text-2xl font-bold text-red-400 mt-1">{{ totalDepenses|number_format(2, ',', ' ') }} €</div>
+        <div class="glass-panel p-6 rounded-2xl">
+            <span class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Total Dépenses</span>
+            <div class="text-3xl font-extrabold text-pink-500 mt-2">-{{ totalDepenses|number_format(2, ',', ' ') }} €</div>
         </div>
-        <div class="p-5 rounded-2xl border border-[#2D2D31]" style="background-color: #161618;">
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Net Épargné</span>
-            <div class="text-2xl font-bold mt-1 {{ (totalRevenus - totalDepenses) >= 0 ? 'text-white' : 'text-amber-500' }}">
+        <div class="glass-panel p-6 rounded-2xl">
+            <span class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Net Épargné</span>
+            <div class="text-3xl font-extrabold mt-2 {{ (totalRevenus - totalDepenses) >= 0 ? 'text-violet-500' : 'text-pink-500' }}">
                 {{ (totalRevenus - totalDepenses)|number_format(2, ',', ' ') }} €
             </div>
         </div>
@@ -31,23 +31,23 @@
 
     {# --- GRAPHIQUES --- #}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 p-6 rounded-2xl border border-[#2D2D31] flex flex-col justify-between" style="background-color: #161618;">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4">Flux Mensuels</h3>
-            <div class="w-full h-64">
+        <div class="lg:col-span-2 glass-panel p-6 rounded-2xl flex flex-col justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-4">Flux Mensuels</h3>
+            <div class="w-full h-72">
                 <canvas id="chartEvolution"></canvas>
             </div>
         </div>
 
-        <div class="p-6 rounded-2xl border border-[#2D2D31] flex flex-col justify-between" style="background-color: #161618;">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-4">Répartition des Dépenses</h3>
-            <div class="w-full h-64 flex items-center justify-center">
+        <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-4">Répartition des Dépenses</h3>
+            <div class="w-full h-72 flex items-center justify-center">
                 <canvas id="chartCategories"></canvas>
             </div>
         </div>
     </div>
 </div>
 
-{# --- SCRIPTS CHARTS (Configurés Mode Sombre Obsidian) --- #}
+{# --- SCRIPTS CHARTS --- #}
 <script>
     const moisLabels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
 
@@ -60,13 +60,13 @@
                 {
                     label: 'Revenus',
                     data: {{ revenus|json_encode }},
-                    backgroundColor: '#4ade80', // green-400
+                    backgroundColor: '#10B981', // emerald-500
                     borderRadius: 6
                 },
                 {
                     label: 'Dépenses',
                     data: {{ depenses|json_encode }},
-                    backgroundColor: '#f87171', // red-400
+                    backgroundColor: '#EC4899', // pink-500
                     borderRadius: 6
                 }
             ]
@@ -76,8 +76,8 @@
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { grid: { display: false }, ticks: { color: '#8E8E93', font: { size: 10 } } },
-                y: { grid: { color: '#2D2D31' }, ticks: { color: '#8E8E93', font: { size: 10 } } }
+                x: { grid: { display: false }, ticks: { color: '#8E8E93', font: { size: 11 } } },
+                y: { grid: { color: 'rgba(139, 92, 246, 0.1)' }, ticks: { color: '#8E8E93', font: { size: 11 } } }
             }
         }
     });
@@ -89,9 +89,9 @@
             labels: {{ categoriesLabels|json_encode|raw }},
             datasets: [{
                 data: {{ categoriesData|json_encode }},
-                backgroundColor: ['#60a5fa', '#c084fc', '#f43f5e', '#fbbf24', '#2dd4bf', '#a78bfa'],
+                backgroundColor: ['#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#6366F1', '#3B82F6'],
                 borderWidth: 2,
-                borderColor: '#161618'
+                borderColor: 'transparent'
             }]
         },
         options: {
@@ -99,8 +99,8 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'right',
-                    labels: { color: '#8E8E93', font: { size: 10 }, boxWidth: 12 }
+                    position: 'bottom',
+                    labels: { color: '#8E8E93', font: { size: 11 }, boxWidth: 12, padding: 15 }
                 }
             }
         }

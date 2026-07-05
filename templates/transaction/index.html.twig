@@ -1,70 +1,121 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Yuno - Transactions{% endblock %}
+{% block title %}Transactions - Yuno Budget{% endblock %}
 
 {% block body %}
-<div class="space-y-6">
-    <!-- Header avec bouton d'action principal -->
-    <div class="flex justify-between items-center pb-4 border-b border-[#2D2D31]">
-        <div>
-            <h1 class="text-2xl font-semibold tracking-tight">Transactions Récentes</h1>
-            <p class="text-sm text-zinc-400">Suivez et gérez l'ensemble de vos flux financiers.</p>
-        </div>
-        <a href="{{ path('app_transaction_new') }}" style="background-color: #FFFFFF; color: #0B0B0C;" class="px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
+<div class="sm:flex sm:items-center sm:justify-between mb-8 pb-4 border-b border-[var(--border-color)]">
+    <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">Transactions Récentes</h1>
+        <p class="mt-2 text-sm text-[var(--text-secondary)]">Suivez, filtrez et exportez l'ensemble de vos flux financiers en temps réel.</p>
+    </div>
+    <div class="mt-4 sm:mt-0 flex flex-wrap gap-3">
+        <a href="{{ path('app_transaction_new') }}" class="btn-gradient inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm transition-all">
             + Ajouter une transaction
         </a>
     </div>
+</div>
 
-    <!-- Tableau Obsidian Style -->
-    <div class="overflow-x-auto rounded-xl border border-[#2D2D31]" style="background-color: #161618;">
-        <table class="min-w-full divide-y divide-[#2D2D31] text-left text-sm">
+{# --- BARRE DE FILTRAGE & EXPORT CSV --- #}
+<div class="glass-panel p-5 rounded-2xl mb-6 space-y-4 lg:space-y-0 lg:flex lg:items-center lg:justify-between gap-4">
+    <form method="get" action="{{ path('app_transaction_index') }}" class="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        {# Recherche par mot-clé #}
+        <div>
+            <input type="text" name="q" value="{{ active_search }}" placeholder="🔍 Rechercher (ex: Loyer, Course...)" class="w-full rounded-xl border border-[var(--border-color)] bg-[var(--input-bg)] text-[var(--text-primary)] px-3.5 py-2 text-xs focus:outline-none focus:border-violet-500 transition-all shadow-inner" />
+        </div>
+
+        {# Filtre par catégorie #}
+        <div>
+            <select name="categorie" class="w-full rounded-xl border border-[var(--border-color)] bg-[var(--input-bg)] text-[var(--text-primary)] px-3.5 py-2 text-xs focus:outline-none focus:border-violet-500 transition-all shadow-inner">
+                <option value="">🏷️ Toutes les catégories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if active_categorie == cat.id %}selected{% endif %}>
+                        {{ cat.nom }} ({% if cat.type.value is defined %}{{ cat.type.value }}{% else %}{{ cat.type }}{% endif %})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {# Filtre par type (Revenu/Dépense) #}
+        <div>
+            <select name="type" class="w-full rounded-xl border border-[var(--border-color)] bg-[var(--input-bg)] text-[var(--text-primary)] px-3.5 py-2 text-xs focus:outline-none focus:border-violet-500 transition-all shadow-inner">
+                <option value="">⚡ Tous les types</option>
+                <option value="REVENU" {% if active_type == 'REVENU' %}selected{% endif %}>📈 Revenus uniquement</option>
+                <option value="DEPENSE" {% if active_type == 'DEPENSE' %}selected{% endif %}>📉 Dépenses uniquement</option>
+            </select>
+        </div>
+
+        {# Boutons Filtrer et Réinitialiser #}
+        <div class="flex items-center gap-2">
+            <button type="submit" class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-3 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-1">
+                <span>⚡</span> Filtrer
+            </button>
+            {% if active_search or active_categorie or active_type %}
+                <a href="{{ path('app_transaction_index') }}" class="px-3 py-2 rounded-xl border border-red-500/50 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-semibold transition-all text-center flex items-center justify-center" title="Réinitialiser les filtres">
+                    ❌
+                </a>
+            {% endif %}
+        </div>
+    </form>
+
+    {# Bouton d'exportation CSV/Excel #}
+    <div class="flex-shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-[var(--border-color)] flex justify-end">
+        <a href="{{ path('app_transaction_export_csv', {'q': active_search, 'categorie': active_categorie, 'type': active_type}) }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-500 text-xs font-bold transition-all shadow-sm">
+            <span>📥</span> Exporter Excel / CSV
+        </a>
+    </div>
+</div>
+
+<div class="flex flex-col mt-6">
+    <div class="overflow-x-auto table-container">
+        <table class="fintech-table">
             <thead>
-                <tr class="text-zinc-400 text-xs uppercase tracking-wider bg-zinc-900/50">
-                    <th class="px-6 py-4 font-semibold">Date</th>
-                    <th class="px-6 py-4 font-semibold">Nom / Description</th>
-                    <th class="px-6 py-4 font-semibold">Catégorie</th>
-                    <th class="px-6 py-4 font-semibold">Moyen de Paiement</th>
-                    <th class="px-6 py-4 font-semibold text-right">Montant</th>
-                    <th class="px-6 py-4 font-semibold text-center">Actions</th>
+                <tr>
+                    <th>Date</th>
+                    <th>Nom / Description</th>
+                    <th>Catégorie</th>
+                    <th>Moyen de Paiement</th>
+                    <th class="text-right">Montant</th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-[#2D2D31]">
+            <tbody>
                 {% for transaction in transactions %}
-                    <tr class="hover:bg-zinc-800/30 transition-colors">
-                        <!-- CORRECTION : date_transaction -> dateTransaction -->
-                        <td class="px-6 py-4 text-zinc-400">
+                    <tr>
+                        <td class="text-[var(--text-secondary)] font-mono text-xs">
                             {{ transaction.dateTransaction ? transaction.dateTransaction|date('d/m/Y H:i') : '' }}
                         </td>
                         
-                        <!-- CORRECTION : libelle_transaction -> libelleTransaction -->
-                        <td class="px-6 py-4 font-medium text-white">
+                        <td class="font-bold text-[var(--text-primary)]">
                             {{ transaction.libelleTransaction }}
                         </td>
                         
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+                        <td>
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-violet-500/15 text-violet-500 border border-violet-500/30">
                                 {{ transaction.categorie ? transaction.categorie.nom : 'Sans catégorie' }}
                             </span>
                         </td>
-                        <td>
-                            {# 🛡️ Protection absolue : on teste si l'objet existe ET si son ID est valide et supérieur à 0 #}
+                        <td class="text-[var(--text-secondary)] font-medium">
                             {% if transaction.moyenPaiement and transaction.moyenPaiement.id is defined and transaction.moyenPaiement.id > 0 %}
-                                {{ transaction.moyenPaiement.nom }}
+                                💳 {{ transaction.moyenPaiement.nom }}
                             {% else %}
-                                <span class="text-muted" style="font-style: italic;">Non spécifié</span>
+                                <span class="text-[var(--text-secondary)] italic">Non spécifié</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-right font-semibold {% if transaction.montant < 0 %}text-red-400{% else %}text-green-400{% endif %}">
-                            {{ transaction.montant|number_format(2, ',', ' ') }} €
+                        <td class="text-right font-extrabold text-base {% if transaction.montant < 0 %}text-pink-500{% else %}text-emerald-500{% endif %}">
+                            {% if transaction.montant > 0 %}+{% endif %}{{ transaction.montant|number_format(2, ',', ' ') }} €
                         </td>
-                        <td class="px-6 py-4 text-center space-x-3">
-                            <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}" class="text-zinc-400 hover:text-white transition-colors">Modifier</a>
+                        <td class="text-center font-medium">
+                            <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}" class="text-violet-500 hover:text-pink-500 transition-colors font-semibold">Modifier</a>
                         </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-zinc-500">
-                            Aucune transaction enregistrée pour le moment.
+                        <td colspan="6" class="py-12 text-center text-sm text-[var(--text-secondary)]">
+                            {% if active_search or active_categorie or active_type %}
+                                Aucune transaction ne correspond à vos critères de filtrage.
+                            {% else %}
+                                Aucune transaction enregistrée pour le moment.
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
